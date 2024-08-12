@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="https://cdn.jsdelivr.net/">
+  <title>UNDERMAX CLOUD MANAGER</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <link href="npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f3f4f6;
+      color: #1f2937;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .card {
+      background-color: white;
+      border-radius: 1rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 0.5rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .btn-primary {
+      background-color: #4f46e5;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: #4338ca;
+    }
+    
+    .btn-secondary {
+      background-color: #6b7280;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #4b5563;
+    }
+    
+    .btn-danger {
+      background-color: #ef4444;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: #dc2626;
+    }
+    
+    .input-group {
+      margin-bottom: 1rem;
+    }
+    
+    .input-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    
+    .input-group input:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    th {
+      background-color: #f9fafb;
+      font-weight: 600;
+    }
+    
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      max-width: 500px;
+      width: 100%;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 2rem;
+    }
+    
+    .tab {
+      padding: 1rem 2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .tab.active {
+      border-bottom: 2px solid #4f46e5;
+      color: #4f46e5;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .loading-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background-color: #4f46e5;
+      transition: width 0.3s ease;
+      z-index: 2000;
+    }
+    
+    .loading-notification {
+      position: fixed;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #4f46e5;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0 0 0.5rem 0.5rem;
+      font-weight: 600;
+      transition: opacity 0.3s ease;
+      z-index: 2001;
+    }
+
+    .notification {
+      position: fixed;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ef4444;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: all 0.5s ease;
+      z-index: 2000;
+    }
+
+    .notification.success {
+      background-color: #4f46e5;
+    }
+
+    .notification.show {
+      top: 20px;
+    }
+
+  </style>
+</head>
+<body>
+  <div id="loadingBar" class="loading-bar"></div>
+  <div id="loadingNotification" class="loading-notification hidden">Inicializando...</div>
+
+  <div class="container">
+    <h1 class="text-4xl font-bold mb-8 text-center">UNDERMAX CLOUD MANAGER</h1>
+    
+    <div id="loginCard" class="card">
+      <h2 class="text-2xl font-semibold mb-4">Iniciar Sesión</h2>
+      <button id="loginButton" onclick="signInWithGoogle()" class="btn btn-primary">
+        <i class="fab fa-google mr-2"></i>Iniciar Sesión con Google
+      </button>
+    </div>
+
+    <div id="mainContent" class="hidden">
+      <div class="card">
+        <div class="tabs">
+          <div class="tab active" onclick="openTab(event, 'overview')">Vista General</div>
+          <div class="tab" onclick="openTab(event, 'data-management')">Gestión de Datos</div>
+          <div class="tab" onclick="openTab(event, 'database-info')">Información de la Base de Datos</div>
+        </div>
+        
+        <div id="overview" class="tab-content active">
+          <h2 class="text-2xl font-semibold mb-4">Estado de la Conexión</h2>
+          <div id="connectionStatus" class="p-4 rounded-lg text-xl mb-8"></div>
+          
+          <button onclick="runTests()" class="btn btn-primary">
+            <i class="fas fa-vial mr-2"></i>Ejecutar Pruebas
+          </button>
+        </div>
+        
+        <div id="data-management" class="tab-content">
+          <h2 class="text-2xl font-semibold mb-4">Gestión de Datos</h2>
+          
+          <div class="mb-8">
+            <h3 class="text-xl font-semibold mb-4">Agregar Nuevo Dato</h3>
+            <div class="flex space-x-4">
+              <div class="input-group flex-1">
+                <label for="newKey">Clave</label>
+                <input type="text" id="newKey" placeholder="Ingresa la clave">
+              </div>
+              <div class="input-group flex-1">
+                <label for="newValue">Valor</label>
+                <input type="text" id="newValue" placeholder="Ingresa el valor">
+              </div>
+              <div class="input-group">
+                <label for="newType">Tipo</label>
+                <select id="newType">
+                  <option value="string">Texto</option>
+                  <option value="number">Número</option>
+                  <option value="boolean">Booleano</option>
+                </select>
+              </div>
+            </div>
+            <button onclick="addData()" class="btn btn-primary mt-4">
+              <i class="fas fa-plus mr-2"></i>Agregar
+            </button>
+          </div>
+          
+          <div>
+            <h3 class="text-xl font-semibold mb-4">Datos en la Base de Datos</h3>
+            <div class="overflow-x-auto bg-white rounded-lg shadow">
+              <table id="dataTable">
+                <thead>
+                  <tr>
+                    <th>Clave</th>
+                    <th>Valor</th>
+                    <th>Tipo</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody">
+                  <!-- Los datos se insertarán aquí dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <div id="database-info" class="tab-content">
+          <h2 class="text-2xl font-semibold mb-4">Información de la Base de Datos</h2>
+          <div id="dbInfoContent"></div>
+        </div>
+      </div>
+
+      <button onclick="signOut()" class="btn btn-secondary mt-4">
+        <i class="fas fa-sign-out-alt mr-2"></i>Cerrar Sesión
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal para las pruebas -->
+  <div id="testModal" class="modal hidden">
+    <div class="modal-content">
+      <h2 class="text-2xl font-bold mb-4">Resultados de las Pruebas</h2>
+      <div id="testResults" class="mb-6 max-h-96 overflow-y-auto"></div>
+      <button onclick="closeTestModal()" class="btn btn-primary">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Modal de confirmación para eliminar -->
+  <div id="deleteConfirmModal" class="modal hidden">
+    <div class="modal-content">
+      <h2 class="text-2xl font-bold mb-4">Confirmar Eliminación</h2>
+      <p class="mb-6">¿Estás seguro de que deseas eliminar este dato?</p>
+      <div class="flex justify-end space-x-4">
+        <button onclick="closeDeleteConfirmModal()" class="btn btn-secondary">Cancelar</button>
+        <button id="confirmDeleteBtn" class="btn btn-danger">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notificación de error -->
+  <div id="errorNotification" class="notification"></div>
+
+  <script>
+    let app, db, auth;
+    const allowedUserEmail = "maxinm3@gmail.com";
+
+    function initFirebase() {
+      showLoadingBar();
+      const firebaseConfig = {
+        apiKey: "AIzaSyBVjvIfeQCBLRJhAXztVUPW5AqJoLD7TmU",
+        authDomain: "testonlinedb-3f7d9.firebaseapp.com",
+        databaseURL: "https://testonlinedb-3f7d9-default-rtdb.firebaseio.com",
+        projectId: "testonlinedb-3f7d9",
+        storageBucket: "testonlinedb-3f7d9.appspot.com",
+        messagingSenderId: "755128558287",
+        appId: "1:755128558287:web:ca5efacd693f9c4e0fcdba"
+      };
+
+      try {
+        app = firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+        auth = firebase.auth();
+        console.log("Firebase inicializado correctamente");
+        updateLoadingProgress(25);
+        checkConnection();
+        updateLoadingProgress(50);
+        setupAuthListener();
+        updateLoadingProgress(75);
+        displayDatabaseInfo();
+        updateLoadingProgress(100);
+        hideLoadingBar();
+      } catch (error) {
+        console.error("Error al inicializar Firebase:", error);
+        updateConnectionStatus('error');
+        hideLoadingBar();
+      }
+    }
+
+    function setupAuthListener() {
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          if (user.email === allowedUserEmail) {
+            showNotification("Bienvenido, " + user.email, "success");
+            document.getElementById('loginCard').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            loadData();
+          } else {
+            auth.signOut();
+            showNotification("Acceso denegado. Usuario no autorizado.", "error");
+          }
+        } else {
+          document.getElementById('loginCard').classList.remove('hidden');
+          document.getElementById('mainContent').classList.add('hidden');
+        }
+      });
+    }
+
+    function signInWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          console.log("Inicio de sesión exitoso:", result.user);
+        })
+        .catch((error) => {
+          console.error("Error en inicio de sesión:", error);
+          showNotification("Error en inicio de sesión: " + error.message, "error");
+        });
+    }
+
+    function signOut() {
+      auth.signOut()
+        .then(() => {
+          console.log("Cierre de sesión exitoso");
+        })
+        .catch((error) => {
+          console.error("Error en cierre de sesión:", error);
+          showNotification("Error en cierre de sesión: " + error.message, "error");
+        });
+    }
+
+    function showNotification(message, type) {
+      const notification = document.getElementById('errorNotification');
+      notification.textContent = message;
+      notification.className = `notification ${type === 'success' ? 'success' : ''} show`;
+
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    function showLoadingBar() {
+      document.getElementById('loadingBar').style.width = '0%';
+      document.getElementById('loadingNotification').classList.remove('hidden');
+    }
+
+    function hideLoadingBar() {
+      setTimeout(() => {
+        document.getElementById('loadingBar').style.width = '0%';
+        document.getElementById('loadingNotification').classList.add('hidden');
+      }, 1000);
+    }
+
+    function updateLoadingProgress(percentage) {
+      document.getElementById('loadingBar').style.width = `${percentage}%`;
+      document.getElementById('loadingNotification').textContent = `Inicializando... ${percentage}%`;
+    }
+
+    function checkConnection() {
+      const connectedRef = db.ref(".info/connected");
+      connectedRef.on("value", (snap) => {
+        if (snap.val() === true) {
+          updateConnectionStatus('connected');
+        } else {
+          updateConnectionStatus('disconnected');
+        }
+      });
+    }
+
+    function updateConnectionStatus(status) {
+      const statusElement = document.getElementById('connectionStatus');
+      if (status === 'connected') {
+        statusElement.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Conectado a Firebase';
+        statusElement.className = "bg-green-100 text-green-800 p-4 rounded-lg";
+      } else if (status === 'disconnected') {
+        statusElement.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Desconectado de Firebase';
+        statusElement.className = "bg-yellow-100 text-yellow-800 p-4 rounded-lg";
+      } else {
+        statusElement.innerHTML = '<i class="fas fa-times-circle mr-2"></i>Error de conexión a Firebase';
+        statusElement.className = "bg-red-100 text-red-800 p-4 rounded-lg";
+      }
+    }
+
+    function loadData() {
+      const dataRef = db.ref('/');
+      dataRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        updateTable(data);
+      });
+    }
+
+    function updateTable(data) {
+      const tableBody = document.getElementById('tableBody');
+      tableBody.innerHTML = '';
+      if (data) {
+        for (const [key, value] of Object.entries(data)) {
+          const row = document.createElement('tr');
+          const type = typeof value;
+          row.innerHTML = `
+            <td>
+              <input type="text" value="${key}" onchange="updateKey('${key}', this.value)" class="w-full border rounded p-2">
+            </td>
+            <td>
+              <input type="text" value="${value}" onchange="updateData('${key}', this.value, '${type}')" class="w-full border rounded p-2">
+            </td>
+            <td>
+              <select onchange="updateDataType('${key}', this.value)" class="w-full border rounded p-2">
+                <option value="string" ${type === 'string' ? 'selected' : ''}>Texto</option>
+                <option value="number" ${type === 'number' ? 'selected' : ''}>Número</option>
+                <option value="boolean" ${type === 'boolean' ? 'selected' : ''}>Booleano</option>
+              </select>
+            </td>
+            <td>
+              <button onclick="showDeleteConfirmModal('${key}')" class="btn btn-danger">
+                <i class="fas fa-trash-alt mr-2"></i>Eliminar
+              </button>
+            </td>
+          `;
+          tableBody.appendChild(row);
+        }
+      }
+    }
+
+    function addData() {
+      const key = document.getElementById('newKey').value;
+      let value = document.getElementById('newValue').value;
+      const type = document.getElementById('newType').value;
+
+      if (key && value) {
+        if (type === 'number') {
+          value = Number(value);
+        } else if (type === 'boolean') {
+          value = value.toLowerCase() === 'true';
+        }
+
+        db.ref('/' + key).set(value)
+          .then(() => {
+            console.log('Dato agregado correctamente');
+            document.getElementById('newKey').value = '';
+            document.getElementById('newValue').value = '';
+          })
+          .catch((error) => {
+            console.error('Error al agregar dato:', error);
+          });
+      }
+    }
+
+    function updateKey(oldKey, newKey) {
+      if (oldKey !== newKey) {
+        db.ref('/' + oldKey).once('value')
+          .then((snapshot) => {
+            const value = snapshot.val();
+            return db.ref('/' + newKey).set(value)
+              .then(() => db.ref('/' + oldKey).remove());
+          })
+          .then(() => {
+            console.log('Clave actualizada correctamente');
+          })
+          .catch((error) => {
+            console.error('Error al actualizar clave:', error);
+          });
+      }
+    }
+
+    function updateData(key, newValue, type) {
+      if (type === 'number') {
+        newValue = Number(newValue);
+      } else if (type === 'boolean') {
+        newValue = newValue.toLowerCase() === 'true';
+      }
+
+      db.ref('/' + key).set(newValue)
+        .then(() => {
+          console.log('Dato actualizado correctamente');
+        })
+        .catch((error) => {
+          console.error('Error al actualizar dato:', error);
+        });
+    }
+
+    function updateDataType(key, newType) {
+      db.ref('/' + key).once('value')
+        .then((snapshot) => {
+          let value = snapshot.val();
+          
+          if (newType === 'number') {
+            value = Number(value);
+          } else if (newType === 'boolean') {
+            value = Boolean(value);
+          } else {
+            value = String(value);
+          }
+
+          return db.ref('/' + key).set(value);
+        })
+        .then(() => {
+          console.log('Tipo de dato actualizado correctamente');
+        })
+        .catch((error) => {
+          console.error('Error al actualizar tipo de dato:', error);
+        });
+    }
+
+    function showDeleteConfirmModal(key) {
+      const modal = document.getElementById('deleteConfirmModal');
+      const confirmBtn = document.getElementById('confirmDeleteBtn');
+      modal.classList.remove('hidden');
+      confirmBtn.onclick = () => {
+        deleteData(key);
+        closeDeleteConfirmModal();
+      };
+    }
+
+    function closeDeleteConfirmModal() {
+      document.getElementById('deleteConfirmModal').classList.add('hidden');
+    }
+
+    function deleteData(key) {
+      db.ref('/' + key).remove()
+        .then(() => {
+          console.log('Dato eliminado correctamente');
+        })
+        .catch((error) => {
+          console.error('Error al eliminar dato:', error);
+        });
+    }
+
+    function runTests() {
+      const testModal = document.getElementById('testModal');
+      const testResults = document.getElementById('testResults');
+      testResults.innerHTML = '<p class="mb-4">Ejecutando pruebas...</p>';
+      testModal.classList.remove('hidden');
+
+      const testKey = `test_${Date.now()}`;
+      const testValue = 'Test Value';
+
+      Promise.resolve()
+        .then(() => db.ref(testKey).set(testValue))
+        .then(() => db.ref(testKey).once('value'))
+        .then((snapshot) => {
+          if (snapshot.val() === testValue) {
+            testResults.innerHTML += '<p class="text-green-600 mb-2"><i class="fas fa-check-circle mr-2"></i>Prueba de escritura y lectura exitosa</p>';
+          } else {
+            throw new Error('El valor leído no coincide con el valor escrito');
+          }
+        })
+        .then(() => db.ref(testKey).remove())
+        .then(() => db.ref(testKey).once('value'))
+        .then((snapshot) => {
+          if (snapshot.val() === null) {
+            testResults.innerHTML += '<p class="text-green-600 mb-2"><i class="fas fa-check-circle mr-2"></i>Prueba de eliminación exitosa</p>';
+          } else {
+            throw new Error('El dato no fue eliminado correctamente');
+          }
+        })
+        .catch((error) => {
+          testResults.innerHTML += `<p class="text-red-600 mb-2"><i class="fas fa-times-circle mr-2"></i>Error en las pruebas: ${error.message}</p>`;
+        })
+        .finally(() => {
+          testResults.innerHTML += '<p class="font-bold mt-4">Pruebas completadas</p>';
+        });
+    }
+
+    function closeTestModal() {
+      const testModal = document.getElementById('testModal');
+      testModal.classList.add('hidden');
+    }
+
+    function displayDatabaseInfo() {
+      const dbInfoContent = document.getElementById('dbInfoContent');
+      dbInfoContent.innerHTML = `
+        <p class="mb-4"><strong>Nombre del proyecto:</strong> UNDERMAX CLOUD MANAGER</p>
+        <p class="mb-4"><strong>Descripción:</strong> Herramienta de administración de base de datos en tiempo real</p>
+      `;
+    }
+
+    function openTab(evt, tabName) {
+      const tabContents = document.getElementsByClassName("tab-content");
+      for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].classList.remove("active");
+      }
+
+      const tabs = document.getElementsByClassName("tab");
+      for (let i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove("active");
+      }
+
+      document.getElementById(tabName).classList.add("active");
+      evt.currentTarget.classList.add("active");
+    }
+
+    document.addEventListener('DOMContentLoaded', initFirebase);
+  </script>
+</body>
+</html>
